@@ -19,15 +19,23 @@ class Board():
                 self.position[row, col] = self.empty_square
 
     def make_move(self, row, col): 
-        board = Board() 
-        board.position[row, col] = board.player_1
+        board = Board(self) 
+        board.position[row, col] = self.player_1
 
-        board.player_1, board.player_2 = board.player_2, board.player_1
+        (board.player_1, board.player_2) = (board.player_2, board.player_1)
     
         return board
 
     def generate_states(self):
-        pass 
+        actions = [] 
+
+        for row in range(3):
+            for col in range(3):
+                if self.position[row, col] == self.empty_square:
+                    actions.append(self.make_move(row, col))
+        
+        return actions
+
 
     def is_draw(self):
         for row, col in self.position: 
@@ -101,24 +109,37 @@ class Board():
 
 if __name__ == "__main__":
     board = Board()
-
-    
-    board.position = {
-        (0,0): "o", (0,1): "o", (0,2): "x",
-        (1,0): "o", (1,1): "x", (1,2): "o",
-        (2,0): "o", (2,1): "x", (2,2): "o",
-    }
-
+    print('This is initial board state:')
     print(board)
-    board.player_1 = "o"
-    board.player_2 = "x"
 
-    if board.is_win():
-        print("player X won!")
-    elif board.is_lose():
-        print("player O won!")
-    else:
-        print("Game is draw!")
+    # generate available actions
+    actions = board.generate_states()
+    
+    # take action (make move on board)
+    board = actions[0]
+    
+    # print updated board state
+    print('first generated move has been made on board:')
+    print(board)
+    
+    # generate available actions after first move has been made
+    actions = board.generate_states()
+
+    # take action (make move on board)
+    board = actions[3]
+    print(board)
+
+    # generate available actions after first move has been made
+    actions = board.generate_states()
+    
+    print('\n\n\n\n Generating states...')
+    # loop over generated action
+    for action in actions:
+        # print current action
+        print(action)
+    
+
+
 
                     
             
