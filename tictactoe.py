@@ -1,4 +1,5 @@
 from copy import deepcopy 
+from mcts import *
 
 class Board():
     def __init__(self, board=None): 
@@ -13,10 +14,49 @@ class Board():
         if board is not None: 
             self.__dict__ = deepcopy(board.__dict__)
 
-    def init_board(self): 
+    def init_board(self):
         for row in range(3):
             for col in range(3):
                 self.position[row, col] = self.empty_square
+
+    def game_loop(self):
+        print(self)
+
+        mcts = MCTS() 
+
+        while True: 
+            user_input = input("> ")
+            if user_input == "exit": break
+            if user_input == "": continue 
+
+            try:
+                row = int(user_input.split(",")[0]) - 1
+                col = int(user_input.split(",")[1]) - 1
+                
+                if self.position[row, col] != self.empty_square: 
+                    print("Illegal move", self.position[row, col])
+                    continue
+                
+                self = self.make_move(row, col)
+
+                # AI move 
+                best_move = mcts.search(self)
+                try:
+                    self = best_move.board
+                except: 
+                    pass
+                print(self)
+
+                if self.is_win():
+                    print("player {} has won the game!".format(self.player_2))
+                    break
+                elif self.is_draw():
+                    print("Game is draw!")
+                    break
+
+            except Exception as e: 
+                print("Illegal move")
+                
 
     def make_move(self, row, col): 
         board = Board(self) 
@@ -43,24 +83,16 @@ class Board():
                 return False 
         return True
     
+
     def is_win(self):
-        player = self.player_2 
-        return self.__is_win_or_lose(player)
-
-    def is_lose(self):
-        player = self.player_1
-        return self.__is_win_or_lose(player)
-
-
-    def __is_win_or_lose(self, player):
         # by default player_2 is always user and player_1 is AI
 
         # vertical sequence
         for col in range(3):
             winning_sequence = []
             for row in range(3): 
-                if self.position[row, col] == player:
-                    winning_sequence.append(player)
+                if self.position[row, col] == self.player_2:
+                    winning_sequence.append(self.player_2)
             
                 if len(winning_sequence) == 3: 
                     return True 
@@ -69,8 +101,8 @@ class Board():
         for row in range(3):
             winning_sequence = [] 
             for col in range(3): 
-                if self.position[row, col] == player: 
-                    winning_sequence.append(player)
+                if self.position[row, col] == self.player_2: 
+                    winning_sequence.append(self.player_2)
                 
                 if len(winning_sequence) == 3:
                     return True
@@ -79,8 +111,8 @@ class Board():
         winning_sequence = [] 
         for row in range(3):
             col = row
-            if self.position[row, col] == player:
-                winning_sequence.append(player)
+            if self.position[row, col] == self.player_2:
+                winning_sequence.append(self.player_2)
         if len(winning_sequence) == 3:
             return True
                 
@@ -89,8 +121,8 @@ class Board():
         winning_sequence = [] 
         for row in range(3):
             col = 2 - row
-            if self.position[row, col] == player:
-                winning_sequence.append(player)
+            if self.position[row, col] == self.player_2:
+                winning_sequence.append(self.player_2)
         if len(winning_sequence) == 3:
             return True
         
@@ -107,42 +139,7 @@ class Board():
         return board_string
 
 
+
 if __name__ == "__main__":
-    board = Board()
-    print('This is initial board state:')
-    print(board)
-
-    # generate available actions
-    actions = board.generate_states()
-    
-    # take action (make move on board)
-    board = actions[0]
-    
-    # print updated board state
-    print('first generated move has been made on board:')
-    print(board)
-    
-    # generate available actions after first move has been made
-    actions = board.generate_states()
-
-    # take action (make move on board)
-    board = actions[3]
-    print(board)
-
-    # generate available actions after first move has been made
-    actions = board.generate_states()
-    
-    print('\n\n\n\n Generating states...')
-    # loop over generated action
-    for action in actions:
-        # print current action
-        print(action)
-    
-
-
-
-                    
-            
-            
-
-        
+    board = Board() 
+    board.game_loop()
